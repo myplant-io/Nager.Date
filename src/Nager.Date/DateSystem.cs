@@ -205,7 +205,8 @@ namespace Nager.Date
         /// <returns>Public holiday provider for given country</returns>
         public static IPublicHolidayProvider GetPublicHolidayProvider(CountryCode countryCode)
         {
-            if (string.IsNullOrEmpty(LicenseKey) || !LicenseKey.Equals("myplant"))
+            if (string.IsNullOrEmpty(LicenseKey) ||
+                !LicenseKey.Equals("Thank you for supporting open source projects"))
             {
                 throw new NoLicenseKeyException();
             }
