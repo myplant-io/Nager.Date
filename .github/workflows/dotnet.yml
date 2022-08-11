@@ -7,15 +7,14 @@ on:
           description: 'Docker Image Version (x.x.x)'     
           required: true
 
+env:
+  ACTIONS_ALLOW_UNSECURE_COMMANDS: true
+  
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-    - name: set env 'WS_NAME'
-      run: echo ::set-env name=WS_NAME::nager-date
-      shell: bash
-      
     - uses: actions/checkout@v2
     
     - name: Setup .NET 6.0
@@ -59,7 +58,7 @@ jobs:
       env:
         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
         ECR_REPOSITORY: ${{ secrets.ECR_AWS_REPOSITORY }}
-        IMAGE_TAG: ${{ env.IMAGE_PREFIX }}_${{ github.event.inputs.imageVersion }}
+        IMAGE_TAG: nager-date_${{ github.event.inputs.imageVersion }}
       run: |
         docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
         docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
