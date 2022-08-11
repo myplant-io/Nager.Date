@@ -9,9 +9,7 @@ on:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
-
     steps:
     - name: set env 'WS_NAME'
       run: echo ::set-env name=WS_NAME::nager-date
@@ -27,16 +25,10 @@ jobs:
     - name: Restore dependencies
       working-directory: ./src
       run: dotnet restore
-    - name: Build
-      working-directory: ./src
-      run: dotnet build --configuration Release --no-restore
     - name: Test
       working-directory: ./src
       run: |
         dotnet test --configuration Release --no-restore --no-build --verbosity normal
-    - name: Build project and generate NuGet package
-      run: |
-        dotnet pack --configuration Release --output $GITHUB_WORKSPACE/out src/Nager.Date/Nager.Date.csproj
     - name: Build Docker image
       uses: docker/build-push-action@v1.1.1
       with: 
