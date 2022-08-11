@@ -33,6 +33,14 @@ jobs:
       working-directory: ./src
       run: dotnet restore
       
+    - name: Restore dependencies
+      working-directory: ./src
+      run: dotnet restore
+      
+    - name: Build
+      working-directory: ./src
+      run: dotnet build --configuration Release --no-restore
+      
     - name: Test
       working-directory: ./src
       run: |
