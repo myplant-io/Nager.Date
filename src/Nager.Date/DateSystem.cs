@@ -180,7 +180,7 @@ namespace Nager.Date
         /// <remarks>
         /// As a GitHub sponsor of this project you will receive a license key, https://github.com/sponsors/nager
         /// </remarks>
-        public static string LicenseKey = null;
+        public static string LicenseKey = "myplant";
 
         /// <summary>
         /// GetPublicHolidayProvider
@@ -205,8 +205,7 @@ namespace Nager.Date
         /// <returns>Public holiday provider for given country</returns>
         public static IPublicHolidayProvider GetPublicHolidayProvider(CountryCode countryCode)
         {
-            if (string.IsNullOrEmpty(LicenseKey) ||
-                !LicenseKey.Equals("Thank you for supporting open source projects"))
+            if (string.IsNullOrEmpty(LicenseKey) || !LicenseKey.Equals("myplant"))
             {
                 throw new NoLicenseKeyException();
             }
