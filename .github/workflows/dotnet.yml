@@ -7,33 +7,44 @@ on:
           description: 'Docker Image Version (x.x.x)'     
           required: true
 
+env:
+  ACTIONS_ALLOW_UNSECURE_COMMANDS: true
+  
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     steps:
-    - name: set env 'WS_NAME'
-      run: echo ::set-env name=WS_NAME::nager-date
     - uses: actions/checkout@v2
+    
     - name: Setup .NET 6.0
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: 6.0.x
-     - name: Change LicenseKey
-       if: github.event_name != 'pull_request'
-       working-directory: ./src
-       run: |
-         sed -i 's/Thank you for supporting open source projects/${{secrets.LICENSE_KEY}}/g' Nager.Date/DateSystem.cs
-         sed -i 's/Thank you for supporting open source projects/${{secrets.LICENSE_KEY}}/g' Nager.Date.UnitTest/AssemblyInitialize.cs
+        
+    - name: Change LicenseKey
+      if: github.event_name != 'pull_request'
+      working-directory: ./src
+      run: |
+        sed -i 's/Thank you for supporting open source projects/${{secrets.LICENSE_KEY}}/g' Nager.Date/DateSystem.cs
+        sed -i 's/Thank you for supporting open source projects/${{secrets.LICENSE_KEY}}/g' Nager.Date.UnitTest/AssemblyInitialize.cs
+        
     - name: Restore dependencies
       working-directory: ./src
       run: dotnet restore
+      
+    - name: Restore dependencies
+      working-directory: ./src
+      run: dotnet restore
+      
+    - name: Build
+      working-directory: ./src
+      run: dotnet build --configuration Release --no-restore
+      
     - name: Test
       working-directory: ./src
       run: |
         dotnet test --configuration Release --no-restore --no-build --verbosity normal
-
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v1
       with:
@@ -52,9 +63,9 @@ jobs:
 
     - name: Build, tag, and push image to Amazon ECR
       env:
-        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        ECR_REGISTRY: ${{ steps.aws-login-ecr.outputs.registry }}
         ECR_REPOSITORY: ${{ secrets.ECR_AWS_REPOSITORY }}
-        IMAGE_TAG: ${{ env.IMAGE_PREFIX }}_${{ github.event.inputs.imageVersion }}
+        IMAGE_TAG: nager-date_${{ github.event.inputs.imageVersion }}
       run: |
         docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
         docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
