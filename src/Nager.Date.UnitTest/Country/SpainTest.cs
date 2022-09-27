@@ -8,18 +8,6 @@ namespace Nager.Date.UnitTest.Country
     [TestClass]
     public class SpainTest
     {
-        [TestMethod]
-        public void TestSpain()
-        {
-            var globalHolidayCount = 10;
-
-            for (var year = DateTime.Today.Year; year < 3000; year++)
-            {
-                var publicHolidays = DateSystem.GetPublicHolidays(year, CountryCode.ES);
-                Assert.AreEqual(globalHolidayCount, publicHolidays.Where(o => o.Global).Count());
-            }
-        }
-
         [DataTestMethod]
         public void CheckDayOfMadridIsThirdMayIn2021()
         {
@@ -39,16 +27,11 @@ namespace Nager.Date.UnitTest.Country
         [DataRow(2018, 10, 12, false)]
         [DataRow(2018, 10, 13, true)]
         [DataRow(2018, 10, 14, true)]
-        public void ChecksThatUniversalWeekendIsUsed(int year, int month, int day, bool expected)
+        public void ChecksThatUniversalWeekendIsUsed(int year, int month, int day, bool expectedIsWeekend)
         {
-            // Arrange
             var date = new DateTime(year, month, day);
-
-            // Act
-            var result = date.IsWeekend(CountryCode.ES);
-
-            // Assert
-            Assert.AreEqual(expected, result);
+            var isWeekend = date.IsWeekend(CountryCode.ES);
+            Assert.AreEqual(expectedIsWeekend, isWeekend);
         }
     }
 }
