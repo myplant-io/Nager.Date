@@ -171,7 +171,7 @@ namespace Nager.Date
                 { CountryCode.SO, new Lazy<IWeekendProvider>(() => WeekendProvider.FridayOnly) },
                 { CountryCode.SY, new Lazy<IWeekendProvider>(() => WeekendProvider.SemiUniversal) },
                 { CountryCode.UG, new Lazy<IWeekendProvider>(() => WeekendProvider.SundayOnly) },
-                { CountryCode.YE, new Lazy<IWeekendProvider>(() => WeekendProvider.SemiUniversal) },
+                { CountryCode.YE, new Lazy<IWeekendProvider>(() => WeekendProvider.SemiUniversal) }
             };
 
         /// <summary>
@@ -292,7 +292,7 @@ namespace Nager.Date
         public static IEnumerable<PublicHoliday> GetPublicHolidays(int year, CountryCode countryCode)
         {
             var provider = GetPublicHolidayProvider(countryCode);
-            return provider.Get(year);
+            return provider.GetHolidays(year);
         }
 
         #endregion
@@ -435,6 +435,11 @@ namespace Nager.Date
         /// <exception cref="System.ArgumentException">Thrown when given county code is not recognized valid</exception>
         public static bool IsPublicHoliday(DateTime date, CountryCode countryCode, string countyCode)
         {
+            if (countyCode == null)
+            {
+                throw new ArgumentException($"countyCode is null");
+            }
+
             var provider = GetPublicHolidayProvider(countryCode);
             if (provider is ICountyProvider countryProvider && !countryProvider.GetCounties().ContainsKey(countyCode))
             {

@@ -2,24 +2,29 @@
 
 # :calendar: Nager.Date - [Official Website](https://date.nager.at)
 
-**Nager.Date** is a popular project to query holidays. We currently **support over 100 countries**.<br>
-The project is based on .NET and provides a [public REST Api](https://date.nager.at/Api) for accessing the data.<br>
+Discover the convenience of easily accessing holidays from **over 100 countries** with Nager.Date. Our popular project utilizes the power of .NET and offers a user-friendly public [REST API](https://date.nager.at/Api) for seamless integration into your application.
+
 You can find an overview of the supported countries [here](https://date.nager.at/Country/Coverage).
 
-## :mega: Announcement
-
-Starting May 1, 2022, the Docker container and the NuGet package will require a License Key provided to the sponsors of this project. The public WebApi will remain freely accessible.
+Need offline access to our functionality? No problem! We also provide solutions that allow you to use our services on your own infrastructure without an internet connection. Easily integrate our service into your system with the [Docker](https://hub.docker.com/r/nager/nager-date) container or the [NuGet](https://www.nuget.org/packages/Nager.Date) package. Both options require a license key. As a [sponsor of nager](https://github.com/sponsors/nager), you get a license key.
 
 ## How can I use it?
 
-Using the [Swagger definition](https://date.nager.at/swagger), they can have a client created for their programming language. You can find the information in our Api section.
-More Informations about client generation you can find [here](https://openapi-generator.tech)
+Easily create a client in your preferred programming language by utilizing our [Swagger definition](https://date.nager.at/swagger). Find all the necessary information in our API section. Get more details about client generation in the [documentation](https://openapi-generator.tech).
 
 ### Examples
 
 <details>
   <summary>.NET/C# (click to expand)</summary>
-	
+  
+There are two ways to use our service
+
+**NuGet**
+```
+PM> install-package Nager.Holiday
+```
+
+**Copy Code**
 ```cs
 using System;
 using System.Net.Http;
@@ -28,7 +33,7 @@ using System.Text.Json;
 var jsonSerializerOptions = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
 
 using var httpClient = new HttpClient();
-var response = await httpClient.GetAsync("https://date.nager.at/api/v3/publicholidays/2022/US");
+using var response = await httpClient.GetAsync("https://date.nager.at/api/v3/publicholidays/2022/US");
 if (response.IsSuccessStatusCode)
 {
     using var jsonStream = await response.Content.ReadAsStreamAsync();
@@ -71,7 +76,7 @@ if ($response->getStatusCode() == 200) {
 </details>
 	
 <details>
-  <summary>JAVA (click to expand)</summary>
+  <summary>Java (click to expand)</summary>
 
 This example use the springframework. Code tested with [onecompiler.com](https://onecompiler.com)
 	
@@ -114,13 +119,30 @@ dependencies {
 ```
 	
 </details>
+
+<details>
+  <summary>Python (click to expand)</summary>
+
+`main.py`
+```py
+import json
+import requests
+
+response = requests.get('https://date.nager.at/api/v3/publicholidays/2022/US')
+public_holidays = json.loads(response.content)
+
+for public_holiday in public_holidays:
+  print(public_holiday['date'])
+
+```	
+</details>
 	
-### For our sponsors, we also offer a Docker container and a NuGet package
+## Offline Solution
 
-With a sponsorship you get the license key to use the variants locally without a dependency to our REST Api.
+Don't let internet connectivity issues disrupt your workflow. Our offline solutions enable you to use our services on your own infrastructure without an internet connection. With a sponsorship you get the license key to use the variants locally without a dependency to our REST API.
 
-#### nuget
-The nuget package is available via [NuGet](https://www.nuget.org/packages/Nager.Date)<br>
+### NuGet
+The NuGet package is available via [NuGet](https://www.nuget.org/packages/Nager.Date)<br>
 
 ```
 PM> install-package Nager.Date
@@ -129,7 +151,7 @@ PM> install-package Nager.Date
 <details>
   <summary>Code Examples (click to expand)</summary>
   
-## Examples for .NET (nuget package)
+## Examples for .NET (NuGet package)
 
 ### Set the license key
 ```cs
@@ -182,30 +204,27 @@ if (DateSystem.IsWeekend(date, CountryCode.DE))
 ```
 </details>
 
-#### docker
-If high availability is important for you and you want to avoid access to the Internet, we can also offer you your own Docker container.
+### Docker
 
-The docker container is available via [Docker Hub](https://hub.docker.com/r/nager/nager-date)<br>
-To run a local instance of the docker image run the following command<br>
+The Docker container is available via [Docker Hub](https://hub.docker.com/r/nager/nager-date)<br>
+To run a local instance of the Docker image run the following command<br>
 `docker run -p 80:80 nager/nager-date`
 
 
 ## Areas of Application
-- telephone systems
-- carrier (land transport)
-- time recording
 
-## Blog Posts
+There are several business fields in which it is important to know the holidays in different countries.
 
-[Mark Seemann - Simple holidays](http://blog.ploeh.dk/2017/04/24/simple-holidays/)
+- **E-commerce**: If an online retailer sells its products in different countries, it should know the holidays in these countries to adjust delivery times and customer service accordingly.
+- **Travel industry:** A tour operator should know the holidays of the countries to which it offers trips, to alert its customers to special events or closed attractions.
+- **Staff scheduling:** Companies with branches in several countries must know the holidays in each country to be able to plan their staff needs accordingly.
+- **Financial industry:** Banks and financial institutions should know the holidays in the countries in which they conduct business to ensure that transfers and transactions are performed on time and to estimate the impact of holidays on the foreign exchange market.
+- **Logistics and supply chains:** Companies managing logistics or supply chains across several countries, must know the holidays in these countries to adjust planning and supply chain decisions.
+- **Telephone systems:** To automatically turn on the answering machine on holidays.
+- **Time recording:** To automatically fill the missing hours with the normal working hours.
 
-## Alternative projects
+## Articles about this project
 
-| Language | Project | Supported Countries (January 2019) |
-| ------------- | ------------- | ------------- |
-| PHP | [yasumi](https://github.com/azuyalabs/yasumi) | 34 |
-| JavaScript | [date-holidays](https://github.com/commenthol/date-holidays) | 142 |
-| Java | [jollyday](https://github.com/svendiedrichsen/jollyday) | 64 |
-| .NET | [Holiday](https://github.com/martinjw/Holiday) | 21 |
-| Python | [python-holidays](https://github.com/ryanss/python-holidays) | 34 |
-| Python | [workalendar](https://github.com/peopledoc/workalendar) | 59 |
+- [Mark Seemann - Simple holidays](http://blog.ploeh.dk/2017/04/24/simple-holidays/)
+- [YouTube use the NuGet package](https://www.youtube.com/watch?v=oS_uvbEV4Pw)
+- [dotnetpro - Feiertagsrechner (German)](https://www.dotnetpro.de/core/frameworks/feiertagsrechner-2661291.html)

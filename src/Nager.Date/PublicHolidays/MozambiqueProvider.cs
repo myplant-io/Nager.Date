@@ -1,4 +1,4 @@
-﻿using Nager.Date.Contract;
+using Nager.Date.Contract;
 using Nager.Date.Model;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,7 +8,7 @@ namespace Nager.Date.PublicHolidays
     /// <summary>
     /// Mozambique
     /// </summary>
-    public class MozambiqueProvider : IPublicHolidayProvider, ICountyProvider
+    internal class MozambiqueProvider : IPublicHolidayProvider, ICountyProvider
     {
         /// <summary>
         /// MozambiqueProvider
@@ -18,7 +18,28 @@ namespace Nager.Date.PublicHolidays
         }
 
         ///<inheritdoc/>
-        public IEnumerable<PublicHoliday> Get(int year)
+        public IDictionary<string, string> GetCounties()
+        {
+            //List of Provinces https://en.wikipedia.org/wiki/Provinces_of_Mozambique
+
+            return new Dictionary<string, string>
+            {
+                { "MZ-CD","Cabo Delgado" },
+                { "MZ-GZ", "Gaza" },
+                { "MZ-IH", "Inhambane" },
+                { "MZ-MA", "Manica" },
+                { "MZ-MP", "Maputo Cidade" },
+                { "MZ-MT", "Maputo" },
+                { "MZ-NA", "Nampula" },
+                { "MZ-NI", "Niassa" },
+                { "MZ-SO", "Sofala" },
+                { "MZ-TE", "Tete" },
+                { "MZ-ZA", "Zambezia" }
+            };
+        }
+
+        ///<inheritdoc/>
+        public IEnumerable<PublicHoliday> GetHolidays(int year)
         {
             var countryCode = CountryCode.MZ;
 
@@ -34,27 +55,6 @@ namespace Nager.Date.PublicHolidays
             items.Add(new PublicHoliday(year, 12, 25, "Natal", "Christmas Day", countryCode));
 
             return items.OrderBy(o => o.Date);
-        }
-
-        ///<inheritdoc/>
-        public IDictionary<string, string> GetCounties()
-        {
-            //List of Provinces
-            //https://en.wikipedia.org/wiki/Provinces_of_Mozambique
-            return new Dictionary<string, string>
-            {
-                { "MZ-CD","Cabo Delgado" },
-                { "MZ-GZ", "Gaza" },
-                { "MZ-IH", "Inhambane" },
-                { "MZ-MA", "Manica" },
-                { "MZ-MP", "Maputo Cidade" },
-                { "MZ-MT", "Maputo" },
-                { "MZ-NA", "Nampula" },
-                { "MZ-NI", "Niassa" },
-                { "MZ-SO", "Sofala" },
-                { "MZ-TE", "Tete" },
-                { "MZ-ZA", "Zambezia" }
-            };
         }
 
         ///<inheritdoc/>

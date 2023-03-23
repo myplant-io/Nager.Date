@@ -4,14 +4,65 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
-## [Unreleased 1.36.3] - yyyy-mm-dd
+
+## [1.40.0] - 2023-03-04
  
 ### Added
+- Romania - Epiphany and Saint John the Baptist
+### Fixed
+- Greece - Fix Pentecost
+- Australia - Fix Christmas and Boxing Day Weekend Shift
+- Germany - Fix International Womens Day
+- Denmark - Fix General Prayer Day 2024
+- Brazil - Fix Carnival
+
+
+## [1.39.0] - 2023-02-11
+ 
+### Added
+- United States - Add counties
+### Removed
+- United States - Remove wrong Inauguration Day
+### Fixed
+- Colombia - Fix missing Monday shift
+- Spain - Fix holidays for 2023 changes
+- South Africa - Fix missing holiday shift
+
+## [1.38.0] - 2023-01-11
+ 
+### Added
+- Isle of Man - Add Missing Royal Holidays
+- Canada - Add Saskatchewan Day
+- Ireland - Add Saint Brigid's Day
+### Fixed
+- Chile - Fix National Plebiscite
+- Australia - Fix incorrect counties
+- Bosnia And Herzegovina - Fix incorrect counties
+- Canada - Fix St. Stephen's Day naming
+- Turkey - Check Hijri year is supported
+
+## [1.37.0] - 2022-11-09
+ 
+### Added
+- Singapore - Add Hari Raya Puasa, Vesak Day, Hari Raya Haji, Deepavali
+- United Kingdom - Add Coronation Bank Holiday
+- Turkey - Add Eid al-Adha, add Eid al-Fitr
+### Changed
+- France - Holidays revised, county information revised
+### Fixed
+- Singapore - Fix missing sunday shift
+
+## [1.36.4] - 2022-10-04
+ 
+### Fixed
+- DateSystem - NoHolidaysProvider Access Modifier public
+
+## [1.36.3] - 2022-09-30
+ 
 ### Changed
 - Chile - Apply changes from Wikipedia
-### Deprecated
-### Removed
-### Fixed
+- DateSystem - Change holiday provider access level
+- DateSystem - Rename get method in providers
 
 ## [1.36.2] - 2022-09-19
  

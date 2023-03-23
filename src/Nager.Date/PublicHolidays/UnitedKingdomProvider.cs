@@ -10,7 +10,7 @@ namespace Nager.Date.PublicHolidays
     /// <summary>
     /// United Kingdom
     /// </summary>
-    public class UnitedKingdomProvider : IPublicHolidayProvider, ICountyProvider
+    internal class UnitedKingdomProvider : IPublicHolidayProvider, ICountyProvider
     {
         private readonly ICatholicProvider _catholicProvider;
 
@@ -24,7 +24,19 @@ namespace Nager.Date.PublicHolidays
         }
 
         ///<inheritdoc/>
-        public IEnumerable<PublicHoliday> Get(int year)
+        public IDictionary<string, string> GetCounties()
+        {
+            return new Dictionary<string, string>
+            {
+                { "GB-NIR", "Northern Ireland" },
+                { "GB-SCT", "Scotland" },
+                { "GB-ENG", "England" },
+                { "GB-WLS", "Wales" },
+            };
+        }
+
+        ///<inheritdoc/>
+        public IEnumerable<PublicHoliday> GetHolidays(int year)
         {
             var countryCode = CountryCode.GB;
 
@@ -67,29 +79,12 @@ namespace Nager.Date.PublicHolidays
             items.Add(new PublicHoliday(firstMondayInAugust, "Summer Bank Holiday", "Summer Bank Holiday", countryCode, 1971, new string[] { "GB-SCT" }));
             items.Add(new PublicHoliday(lastMondayInAugust, "Summer Bank Holiday", "Summer Bank Holiday", countryCode, 1971, new string[] { "GB-ENG", "GB-WLS", "GB-NIR" }));
 
-            var earlyMayBankHoliday = this.EarlyMayBankHoliday(year, countryCode);
-            if (earlyMayBankHoliday != null)
-            {
-                items.Add(earlyMayBankHoliday);
-            }
 
-            var springBankHoliday = this.SpringBankHoliday(year, countryCode);
-            if (springBankHoliday != null)
-            {
-                items.Add(springBankHoliday);
-            }
-
-            var queensPlatinumJubilee = this.QueensPlatinumJubilee(year, countryCode);
-            if (queensPlatinumJubilee != null)
-            {
-                items.Add(queensPlatinumJubilee);
-            }
-
-            var queensStateFuneral = this.QueensStateFuneral(year, countryCode);
-            if (queensStateFuneral != null)
-            {
-                items.Add(queensStateFuneral);
-            }
+            items.AddIfNotNull(this.EarlyMayBankHoliday(year, countryCode));
+            items.AddIfNotNull(this.SpringBankHoliday(year, countryCode));
+            items.AddIfNotNull(this.QueensPlatinumJubilee(year, countryCode));
+            items.AddIfNotNull(this.QueensStateFuneral(year, countryCode));
+            items.AddIfNotNull(this.CoronationBankHoliday(year, countryCode));
 
             #region Christmas Day with fallback
 
@@ -146,6 +141,19 @@ namespace Nager.Date.PublicHolidays
             return null;
         }
 
+        private PublicHoliday CoronationBankHoliday(int year, CountryCode countryCode)
+        {
+            if (year == 2023)
+            {
+                //Bank holiday proclaimed in honour of the coronation of His Majesty King Charles III
+                //https://www.gov.uk/government/news/bank-holiday-proclaimed-in-honour-of-the-coronation-of-his-majesty-king-charles-iii
+
+                return new PublicHoliday(year, 5, 8, "Coronation Bank Holiday", "Coronation Bank Holiday", countryCode);
+            }
+
+            return null;
+        }
+
         #endregion
 
         private PublicHoliday EarlyMayBankHoliday(int year, CountryCode countryCode)
@@ -161,18 +169,6 @@ namespace Nager.Date.PublicHolidays
 
             var firstMondayInMay = DateSystem.FindDay(year, Month.May, DayOfWeek.Monday, Occurrence.First);
             return new PublicHoliday(firstMondayInMay, holidayName, holidayName, countryCode, 1978);
-        }
-
-        ///<inheritdoc/>
-        public IDictionary<string, string> GetCounties()
-        {
-            return new Dictionary<string, string>
-            {
-                { "GB-NIR", "Northern Ireland" },
-                { "GB-SCT", "Scotland" },
-                { "GB-ENG", "England" },
-                { "GB-WLS", "Wales" },
-            };
         }
 
         ///<inheritdoc/>

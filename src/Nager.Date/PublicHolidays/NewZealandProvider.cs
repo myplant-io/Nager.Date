@@ -10,7 +10,7 @@ namespace Nager.Date.PublicHolidays
     /// <summary>
     /// New Zealand
     /// </summary>
-    public class NewZealandProvider : IPublicHolidayProvider
+    internal class NewZealandProvider : IPublicHolidayProvider, ICountyProvider
     {
         private readonly ICatholicProvider _catholicProvider;
         private IDictionary<int, DateTime> _matariki;
@@ -26,7 +26,32 @@ namespace Nager.Date.PublicHolidays
         }
 
         ///<inheritdoc/>
-        public IEnumerable<PublicHoliday> Get(int year)
+        public IDictionary<string, string> GetCounties()
+        {
+            return new Dictionary<string, string>
+            {
+                { "NZ-AUK", "Auckland" },
+                { "NZ-BOP", "Bay of Plenty" },
+                { "NZ-CAN", "Canterbury" },
+                { "NZ-CIT", "Chatham Islands Territory" },
+                { "NZ-GIS", "Gisborne" },
+                { "NZ-HKB", "Hawke's Bay" },
+                { "NZ-MBH", "Marlborough" },
+                { "NZ-MWT", "Manawatu-Wanganui" },
+                { "NZ-NSN", "Nelson" },
+                { "NZ-NTL", "Northland" },
+                { "NZ-OTA", "Otago" },
+                { "NZ-STL", "Southland" },
+                { "NZ-TAS", "Tasman" },
+                { "NZ-TKI", "Taranaki" },
+                { "NZ-WGN", "Wellington" },
+                { "NZ-WKO", "Waikato" },
+                { "NZ-WTC", "West Coast" }
+            };
+        }
+
+        ///<inheritdoc/>
+        public IEnumerable<PublicHoliday> GetHolidays(int year)
         {
             var countryCode = CountryCode.NZ;
 
@@ -146,11 +171,7 @@ namespace Nager.Date.PublicHolidays
 
             #endregion
 
-            var memorialDayForQueenElizabeth = this.MemorialDayForQueenElizabeth(year, countryCode);
-            if (memorialDayForQueenElizabeth != null)
-            {
-                items.Add(memorialDayForQueenElizabeth);
-            }
+            items.AddIfNotNull(this.MemorialDayForQueenElizabeth(year, countryCode));
 
             return items.OrderBy(o => o.Date);
         }

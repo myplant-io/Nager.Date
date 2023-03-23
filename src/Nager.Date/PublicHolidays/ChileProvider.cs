@@ -10,7 +10,7 @@ namespace Nager.Date.PublicHolidays
     /// <summary>
     /// Chile
     /// </summary>
-    public class ChileProvider : IPublicHolidayProvider, ICountyProvider
+    internal class ChileProvider : IPublicHolidayProvider, ICountyProvider
     {
         private readonly ICatholicProvider _catholicProvider;
 
@@ -47,7 +47,7 @@ namespace Nager.Date.PublicHolidays
         }
 
         ///<inheritdoc/>
-        public IEnumerable<PublicHoliday> Get(int year)
+        public IEnumerable<PublicHoliday> GetHolidays(int year)
         {
             var countryCode = CountryCode.CL;
             var easterSunday = this._catholicProvider.EasterSunday(year);
@@ -68,30 +68,16 @@ namespace Nager.Date.PublicHolidays
 
             items.Add(new PublicHoliday(year, 7, 16, "Virgen del Carmen", "Our Lady of Mount Carmel", countryCode, launchYear: 2007));
             items.Add(new PublicHoliday(year, 8, 15, "Asunción de la Virgen", "Assumption of Mary", countryCode));
-            items.Add(new PublicHoliday(year, 9, 4, "Plebiscito nacional", "National plebiscite", countryCode));
             items.Add(new PublicHoliday(year, 9, 18, "Fiestas Patrias", "National holiday", countryCode));
             items.Add(new PublicHoliday(year, 9, 19, "Día de las Glorias del Ejército", "Army Day", countryCode));
             items.Add(new PublicHoliday(year, 11, 1, "Día de Todos los Santos", "All Saints", countryCode));
             items.Add(new PublicHoliday(year, 12, 8, "Inmaculada Concepción", "Immaculate Conception", countryCode));
             items.Add(new PublicHoliday(year, 12, 25, "Navidad / Natividad del Señor", "Christmas Day", countryCode));
 
-            var saintPeterAndSaintPaul = this.SaintPeterAndSaintPaul(year, countryCode);
-            if (saintPeterAndSaintPaul != null)
-            {
-                items.Add(saintPeterAndSaintPaul);
-            }
-
-            var columbusDay = this.ColumbusDay(year, countryCode);
-            if (columbusDay != null)
-            {
-                items.Add(columbusDay);
-            }
-
-            var reformationDay = this.ReformationDay(year, countryCode);
-            if (reformationDay != null)
-            {
-                items.Add(reformationDay);
-            }
+            items.AddIfNotNull(this.SaintPeterAndSaintPaul(year, countryCode));
+            items.AddIfNotNull(this.ColumbusDay(year, countryCode));
+            items.AddIfNotNull(this.ReformationDay(year, countryCode));
+            items.AddIfNotNull(this.NationalPlebiscite(year, countryCode));
 
             return items.OrderBy(o => o.Date);
         }
@@ -167,6 +153,16 @@ namespace Nager.Date.PublicHolidays
             }
 
             return new PublicHoliday(date, "Día Nacional de las Iglesias Evangélicas y Protestantes", "Reformation Day", countryCode);
+        }
+
+        private PublicHoliday NationalPlebiscite(int year, CountryCode countryCode)
+        {
+            if (year != 2022)
+            {
+                return null;
+            }
+
+            return new PublicHoliday(year, 9, 4, "Plebiscito nacional", "National plebiscite", countryCode);
         }
 
         ///<inheritdoc/>

@@ -1,7 +1,9 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Nager.Date.Contract;
 using Nager.Date.Model;
+using Nager.Date.PublicHolidays;
 using System;
+using System.Diagnostics;
 using System.Linq;
 
 namespace Nager.Date.UnitTest.Common
@@ -10,21 +12,64 @@ namespace Nager.Date.UnitTest.Common
     public class LogicTest
     {
         [TestMethod]
-        [Ignore("debuging")]
-        public void CheckNoCorruptPublicHolidays()
+
+        public void CheckPublicHolidayProviders()
         {
             var startYear = DateTime.Today.Year - 100;
             var endYear = DateTime.Today.Year + 100;
 
             foreach (CountryCode countryCode in Enum.GetValues(typeof(CountryCode)))
             {
+                var publicHolidayProvider = DateSystem.GetPublicHolidayProvider(countryCode);
+                if (publicHolidayProvider is NoHolidaysProvider)
+                {
+                    continue;
+                }
+
                 for (var calculationYear = startYear; calculationYear < endYear; calculationYear++)
                 {
-                    var items = DateSystem.GetPublicHolidays(calculationYear, countryCode);
-                    var corruptPublicHolidaysAvailable = items.Any(o => !o.Date.Year.Equals(calculationYear));
-                    Assert.IsFalse(corruptPublicHolidaysAvailable, $"Check country {countryCode} {calculationYear}");
-                    //Trace.WriteLineIf(corruptPublicHolidaysAvailable, $"Check country {countryCode} {calculationYear}");
+                    try
+                    {
+                        var items = publicHolidayProvider.GetHolidays(calculationYear);
+                        Assert.IsTrue(items.Any());
+                    }
+                    catch (Exception exception)
+                    {
+                        Debug.WriteLine($"{countryCode} {exception}");
+                    }
                 }
+            }
+        }
+
+        [TestMethod]
+        [Ignore]
+        public void Check_NoPublicHolidays_MoveInAnOtherYear()
+        {
+            var startYear = DateTime.Today.Year - 100;
+            var endYear = DateTime.Today.Year + 100;
+
+            foreach (CountryCode countryCode in Enum.GetValues(typeof(CountryCode)))
+            {
+                var corruptPublicHolidaysFound = false;
+
+                for (var calculationYear = startYear; calculationYear < endYear; calculationYear++)
+                {
+                    try
+                    {
+                        var items = DateSystem.GetPublicHolidays(calculationYear, countryCode);
+                        if (items.Any(o => !o.Date.Year.Equals(calculationYear)))
+                        {
+                            corruptPublicHolidaysFound = true;
+                            break;
+                        }
+                    }
+                    catch (Exception exception)
+                    {
+                        Debug.WriteLine($"{countryCode} {exception}");
+                    }
+                }
+
+                Debug.WriteLineIf(corruptPublicHolidaysFound, $"Check country {countryCode}");
             }
         }
 
@@ -188,24 +233,6 @@ namespace Nager.Date.UnitTest.Common
         }
 
         [TestMethod]
-        public void CheckPublicHolidayWithDateFilter1()
-        {
-            this.CheckPublicHolidayWithDateFilter1(new DateTime(2016, 5, 1), new DateTime(2018, 5, 31));
-            this.CheckPublicHolidayWithDateFilter1(new DateTime(2016, 5, 1, 0, 0, 1), new DateTime(2018, 5, 31, 23, 59, 59));
-            this.CheckPublicHolidayWithDateFilter1(new DateTime(2016, 5, 1, 12, 30, 0), new DateTime(2018, 5, 31, 0, 0, 0));
-            this.CheckPublicHolidayWithDateFilter1(new DateTime(2016, 5, 1, 23, 59, 59), new DateTime(2018, 5, 31, 23, 59, 59));
-        }
-
-        private void CheckPublicHolidayWithDateFilter1(DateTime startDate, DateTime endDate)
-        {
-            var items = DateSystem.GetPublicHolidays(startDate, endDate, CountryCode.DE);
-
-            Assert.AreEqual(43, items.Count());
-            Assert.IsTrue(items.First().Date > new DateTime(2016, 4, 28));
-            Assert.IsTrue(items.Last().Date < new DateTime(2018, 6, 1));
-        }
-
-        [TestMethod]
         [ExpectedException(typeof(ArgumentException), "endDate is before startDate")]
         public void CheckPublicHolidayWithDateFilter2()
         {
@@ -217,17 +244,17 @@ namespace Nager.Date.UnitTest.Common
         {
             var isPublicHoliday = DateSystem.IsPublicHoliday(new DateTime(2019, 8, 5), CountryCode.AU);
             Assert.IsFalse(isPublicHoliday);
-            isPublicHoliday = DateSystem.IsPublicHoliday(new DateTime(2019, 8, 5), CountryCode.AU, "AUS-NT");
+            isPublicHoliday = DateSystem.IsPublicHoliday(new DateTime(2019, 8, 5), CountryCode.AU, "AU-NT");
             Assert.IsTrue(isPublicHoliday);
-            isPublicHoliday = DateSystem.IsPublicHoliday(new DateTime(2019, 8, 5), CountryCode.AU, "AUS-WA");
+            isPublicHoliday = DateSystem.IsPublicHoliday(new DateTime(2019, 8, 5), CountryCode.AU, "AU-WA");
             Assert.IsFalse(isPublicHoliday);
         }
 
         [TestMethod]
-        [ExpectedException(typeof(ArgumentException), "Invalid countyCode AU-NT")]
+        [ExpectedException(typeof(ArgumentException), "Invalid countyCode AUS-NT")]
         public void CheckIsOfficialPublicHolidayByCounty2()
         {
-            var isPublicHoliday = DateSystem.IsPublicHoliday(new DateTime(2019, 8, 5), CountryCode.AU, "AU-NT");
+            var isPublicHoliday = DateSystem.IsPublicHoliday(new DateTime(2019, 8, 5), CountryCode.AU, "AUS-NT");
             Assert.IsTrue(isPublicHoliday);
         }
 

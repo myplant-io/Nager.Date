@@ -1,4 +1,5 @@
 using Nager.Date.Contract;
+using Nager.Date.Extensions;
 using Nager.Date.Model;
 using System;
 using System.Collections.Generic;
@@ -9,7 +10,7 @@ namespace Nager.Date.PublicHolidays
     /// <summary>
     /// Canada
     /// </summary>
-    public class CanadaProvider : IPublicHolidayProvider, ICountyProvider
+    internal class CanadaProvider : IPublicHolidayProvider, ICountyProvider
     {
         private readonly ICatholicProvider _catholicProvider;
 
@@ -25,25 +26,26 @@ namespace Nager.Date.PublicHolidays
         ///<inheritdoc/>
         public IDictionary<string, string> GetCounties()
         {
-            var items = new Dictionary<string, string>();
-            items.Add("CA-AB", "Alberta");
-            items.Add("CA-BC", "British Columbia");
-            items.Add("CA-MB", "Manitoba");
-            items.Add("CA-NB", "New Brunswick");
-            items.Add("CA-NL", "Newfoundland and Labrador");
-            items.Add("CA-NS", "Nova Scotia");
-            items.Add("CA-ON", "Ontario");
-            items.Add("CA-PE", "Prince Edward Island");
-            items.Add("CA-QC", "Québec");
-            items.Add("CA-SK", "Saskatchewan");
-            items.Add("CA-NT", "Northwest Territories");
-            items.Add("CA-NU", "Nunavut");
-            items.Add("CA-YT", "Yukon");
-            return items;
+            return new Dictionary<string, string>
+            {
+                { "CA-AB", "Alberta" },
+                { "CA-BC", "British Columbia" },
+                { "CA-MB", "Manitoba" },
+                { "CA-NB", "New Brunswick" },
+                { "CA-NL", "Newfoundland and Labrador" },
+                { "CA-NS", "Nova Scotia" },
+                { "CA-ON", "Ontario" },
+                { "CA-PE", "Prince Edward Island" },
+                { "CA-QC", "Québec" },
+                { "CA-SK", "Saskatchewan" },
+                { "CA-NT", "Northwest Territories" },
+                { "CA-NU", "Nunavut" },
+                { "CA-YT", "Yukon" }
+            };
         }
 
         ///<inheritdoc/>
-        public IEnumerable<PublicHoliday> Get(int year)
+        public IEnumerable<PublicHoliday> GetHolidays(int year)
         {
             var countryCode = CountryCode.CA;
 
@@ -73,6 +75,7 @@ namespace Nager.Date.PublicHolidays
             items.Add(new PublicHoliday(firstMondayInAugust, "Heritage Day", "Heritage Day", countryCode, null, new string[] { "CA-AB", "CA-YT" }));
             items.Add(new PublicHoliday(firstMondayInAugust, "New Brunswick Day", "New Brunswick Day", countryCode, null, new string[] { "CA-NB" }));
             items.Add(new PublicHoliday(firstMondayInAugust, "Natal Day", "Natal Day", countryCode, null, new string[] { "CA-NS" }));
+            items.Add(new PublicHoliday(firstMondayInAugust, "Saskatchewan Day", "Saskatchewan Day", countryCode, null, new string[] { "CA-SK" }));
             items.Add(new PublicHoliday(thirdMondayInAugust, "Gold Cup Parade Day", "Gold Cup Parade Day", countryCode, null, new string[] { "CA-PE" }));
             items.Add(new PublicHoliday(thirdMondayInAugust, "Discovery Day", "Discovery Day", countryCode, null, new string[] { "CA-YT" }));
             items.Add(new PublicHoliday(firstMondayInSeptember, "Labour Day", "Labour Day", countryCode));
@@ -81,16 +84,11 @@ namespace Nager.Date.PublicHolidays
             items.Add(new PublicHoliday(year, 11, 11, "Armistice Day", "Armistice Day", countryCode, null, new string[] { "CA-NL" }));
             items.Add(new PublicHoliday(year, 11, 11, "Remembrance Day", "Remembrance Day", countryCode, null, new string[] { "CA-AB", "CA-BC", "CA-NB", "CA-NT", "CA-NS", "CA-NU", "CA-PE", "CA-SK", "CA-YT" }));
             items.Add(new PublicHoliday(year, 12, 25, "Christmas Day", "Christmas Day", countryCode));
-            items.Add(new PublicHoliday(year, 12, 26, "St. Stephen's Day", "St. Stephen's Day", countryCode, null, new string[] { "CA-AB", "CA-NB", "CA-NS", "CA-ON", "CA-PE" }));
+            items.Add(new PublicHoliday(year, 12, 26, "Boxing Day", "St. Stephen's Day", countryCode, null, new string[] { "CA-AB", "CA-NB", "CA-NS", "CA-ON", "CA-PE" }));
 
             items.AddRange(this.CanadaDay(year, countryCode));
             items.AddRange(this.FamilyDay(year, countryCode));
-
-            var queensStateFuneral = this.FuneralForQueenElizabeth(year, countryCode);
-            if (queensStateFuneral != null)
-            {
-                items.Add(queensStateFuneral);
-            }
+            items.AddIfNotNull(this.FuneralForQueenElizabeth(year, countryCode));
 
             return items.OrderBy(o => o.Date);
         }
@@ -115,13 +113,15 @@ namespace Nager.Date.PublicHolidays
             if (year < 2019)
             {
                 var secondMondayInFebruary = DateSystem.FindDay(year, Month.February, DayOfWeek.Monday, Occurrence.Second);
-                return new PublicHoliday[] {
+                return new PublicHoliday[]
+                {
                     new PublicHoliday(secondMondayInFebruary, holidayName, holidayName, countryCode, 2013, new string[] { "CA-BC" }),
                     new PublicHoliday(thirdMondayInFebruary, holidayName, holidayName, countryCode, null, new string[] { "CA-AB", "CA-ON", "CA-SK" })
                 };
             }
 
-            return new PublicHoliday[] {
+            return new PublicHoliday[]
+            {
                 new PublicHoliday(thirdMondayInFebruary, holidayName, holidayName, countryCode, null, new string[] { "CA-AB", "CA-BC", "CA-NB", "CA-ON", "CA-SK" })
             };
         }
@@ -133,7 +133,8 @@ namespace Nager.Date.PublicHolidays
 
             if (canadaDay.DayOfWeek == DayOfWeek.Sunday)
             {
-                return new PublicHoliday[] {
+                return new PublicHoliday[]
+                {
                     new PublicHoliday(canadaDay, holidayName, holidayName, countryCode, null, new string[] { "CA-BC", "CA-MB", "CA-NB", "CA-NL", "CA-NS", "CA-ON", "CA-PE", "CA-QC", "CA-SK", "CA-NT", "CA-NU", "CA-YT" } ),
                     //Canada Day is on July 1 every year except when it falls on a Sunday, then it’s on July 2.
                     new PublicHoliday(canadaDay.AddDays(1), holidayName, holidayName, countryCode, null, new string[] { "CA-AB" })
