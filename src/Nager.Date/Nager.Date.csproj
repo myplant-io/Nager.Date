@@ -19,6 +19,14 @@
     <PackageReleaseNotes>A changelog is available at https://github.com/nager/Nager.Date/releases</PackageReleaseNotes>
     <PackageProjectUrl>https://date.nager.at</PackageProjectUrl>
     <PackageTags>Holiday Public-Holiday PublicHoliday Bank-Holiday BankHoliday FederalHoliday NationalHoliday</PackageTags>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageReleaseNotes>A changelog is available at https://github.com/nager/Nager.Date/blob/master/CHANGELOG.md</PackageReleaseNotes>
+    <PackageProjectUrl>https://date.nager.at</PackageProjectUrl>
+    <PackageTags>Holiday Public-Holiday PublicHoliday Bank-Holiday BankHoliday FederalHoliday NationalHoliday</PackageTags>
+
+    <RepositoryUrl>https://github.com/nager/Nager.Date</RepositoryUrl>
+
+    <TargetFrameworks>net472;netstandard2.0;net6.0</TargetFrameworks>
 
     <RepositoryUrl>https://github.com/nager/Nager.Date</RepositoryUrl>
 

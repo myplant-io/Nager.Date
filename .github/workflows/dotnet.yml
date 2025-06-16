@@ -1,35 +1,61 @@
-name: Build & Test
+name: Build and deploy
 
 on:
-  push:
-    paths:
-    - 'src/**'
-    - '.github/workflows/**'
-    branches: [ main ]
-  pull_request:
-    paths:
-    - 'src/**'
-    - '.github/workflows/**'
-    branches: [ main ]
+  workflow_dispatch:
+    inputs:
+        imageVersion:
+          description: 'Docker Image Version (x.x.x)'
+          required: true
+
+env:
+  ACTIONS_ALLOW_UNSECURE_COMMANDS: true
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v4
+
     - name: Setup .NET 8.0
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 8.0.x
+
     - name: Restore dependencies
       working-directory: ./src
       run: dotnet restore
+
     - name: Build
       working-directory: ./src
       run: dotnet build --configuration Release --no-restore
+
     - name: Test
       working-directory: ./src
       run: |
         dotnet test --configuration Release --no-restore --no-build --verbosity normal
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.ECR_AWS_USER }}
+        aws-secret-access-key: ${{ secrets.ECR_AWS_SECRET }}
+        aws-region: us-east-1
+
+    - name: Login to Amazon ECR
+      id: aws-login-ecr
+      uses: aws-actions/amazon-ecr-login@v1
+
+    - name: Login to ECR
+      uses: docker/login-action@v1
+      with:
+        registry: ${{ steps.aws-login-ecr.outputs.registry }}
+
+    - name: Build, tag, and push image to Amazon ECR
+      env:
+        ECR_REGISTRY: ${{ steps.aws-login-ecr.outputs.registry }}
+        ECR_REPOSITORY: ${{ secrets.ECR_AWS_REPOSITORY }}
+        IMAGE_TAG: nager-date_${{ github.event.inputs.imageVersion }}
+      run: |
+        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+        docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
