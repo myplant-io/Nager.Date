@@ -1,4 +1,4 @@
-![Build status](https://github.com/nager/Nager.Date/actions/workflows/dotnet.yml/badge.svg)
+[![Build, Test & Publish](https://github.com/nager/Nager.Date/actions/workflows/dotnet.yml/badge.svg)](https://github.com/nager/Nager.Date/actions/workflows/dotnet.yml)
 
 # :calendar: Nager.Date - [Official Website](https://date.nager.at)
 
@@ -19,7 +19,7 @@ Easily create a client in your preferred programming language by utilizing our [
   
 There are two ways to use our service
 
-**NuGet**
+**[NuGet - Nager.Holiday](https://www.nuget.org/packages/Nager.Holiday)**
 ```
 PM> install-package Nager.Holiday
 ```
@@ -87,16 +87,37 @@ import org.springframework.web.client.RestTemplate;
 import com.google.gson.*;
 
 public class Main {
-    public static void main(String[] args) {
-      String json = new RestTemplate().getForObject("https://date.nager.at/api/v3/publicholidays/2022/US", String.class);
-      JsonElement rootJsonElement = new JsonParser().parse(json);
-      JsonArray publicHolidays = rootJsonElement.getAsJsonArray();
-      Iterator<JsonElement> iterator = publicHolidays.iterator();
-      while (iterator.hasNext()) {
-        JsonElement publicHoliday = (JsonElement)iterator.next();
-        System.out.println(publicHoliday);
-      }
+  public static void main(String[] args) {
+    System.out.println("get holidays");
+    String json = new RestTemplate().getForObject("https://date.nager.at/api/v3/publicholidays/2022/CH", String.class);
+    
+    Gson gson = new Gson();
+    PublicHoliday[] userArray = gson.fromJson(json, PublicHoliday[].class);  
+
+    for(PublicHoliday publicHoliday : userArray) {
+      System.out.print(publicHoliday.date);
+      System.out.print(" ");
+      System.out.print(publicHoliday.name);
+      System.out.print(" ");
+      System.out.print(String.join(",", publicHoliday.counties ?? new String[0]));
+      System.out.print(" ");
+      System.out.println(publicHoliday.localName);
     }
+  }
+}
+```
+
+`PublicHoliday.java`
+```java
+public class PublicHoliday {
+  public String date;
+  public String localName;
+  public String name;
+  public String countryCode ;
+  public Boolean fixed;
+  public Boolean global;
+  public String[] counties;
+  public String[] types;
 }
 ```
 	
@@ -109,12 +130,12 @@ run { standardInput = System.in }
 sourceSets { main { java { srcDir './' } } }
 
 repositories {
-    jcenter()
+  jcenter()
 }
 
 dependencies {
-    compile("org.springframework.boot:spring-boot-starter-web:2.6.7");
-    compile("com.google.code.gson:gson:2.9");
+  implementation 'org.springframework.boot:spring-boot-starter-web:2.6.7';
+  implementation 'com.google.code.gson:gson:2.10.1';
 }
 ```
 	
@@ -155,51 +176,51 @@ PM> install-package Nager.Date
 
 ### Set the license key
 ```cs
-DateSystem.LicenseKey = "LicenseKey1234";
+HolidaySystem.LicenseKey = "LicenseKey1234";
 ```
 
-### Get all publicHolidays of a country and year
+### Get all holidays of a country and year
 ```cs
-var publicHolidays = DateSystem.GetPublicHolidays(2021, "DE");
-foreach (var publicHoliday in publicHolidays)
+var holidays = HolidaySystem.GetHolidays(2024, "DE");
+foreach (var holiday in holidays)
 {
-    //publicHoliday...
-    //publicHoliday.Date -> The date
-    //publicHoliday.LocalName -> The local name
-    //publicHoliday.Name -> The english name
-    //publicHoliday.Fixed -> Is this public holiday every year on the same date
-    //publicHoliday.Global -> Is this public holiday in every county (federal state)
-    //publicHoliday.Counties -> Is the public holiday only valid for a special county ISO-3166-2 - Federal states
-    //publicHoliday.Type -> Public, Bank, School, Authorities, Optional, Observance
+    //holiday...
+    //holiday.Date -> The date
+    //holiday.ObservedDate -> The date on which the holiday is observed
+    //holiday.LocalName -> The local name
+    //holiday.EnglishName -> The english name
+    //holiday.NationalHoliday -> Is this public holiday in every county (federal state)
+    //holiday.SubdivisionCodes -> Is the public holiday only valid for a special county ISO-3166-2 - Federal states
+    //holiday.HolidayTypes -> Public, Bank, School, Authorities, Optional, Observance
 }
 ```
 
-### Get all publicHolidays for a date range
+### Get all holidays for a date range
 ```cs
 var startDate = new DateTime(2016, 5, 1);
-var endDate = new DateTime(2021, 5, 31);
-var publicHolidays = DateSystem.GetPublicHolidays(startDate, endDate, CountryCode.DE);
-foreach (var publicHoliday in publicHolidays)
+var endDate = new DateTime(2024, 5, 31);
+var holidays = HolidaySystem.GetHolidays(startDate, endDate, CountryCode.DE);
+foreach (var holiday in holidays)
 {
-	//publicHoliday...
+	//holiday...
 }
 ```
 
 ### Check if a date is a public holiday
 ```cs
-var date = new DateTime(2021, 1, 1);
-if (DateSystem.IsPublicHoliday(date, CountryCode.DE))
+var date = new DateTime(2024, 1, 1);
+if (HolidaySystem.IsPublicHoliday(date, CountryCode.DE))
 {
-    Console.WriteLine("Is public holiday");
+    Console.WriteLine("Is a public holiday");
 }
 ```
 
-### Check if a date is a weekend day
+### Checks if the given date falls on a weekend day
 ```cs
-var date = new DateTime(2021, 1, 1);
-if (DateSystem.IsWeekend(date, CountryCode.DE))
+var date = new DateTime(2024, 1, 1);
+if (WeekendSystem.IsWeekend(date, CountryCode.DE))
 {
-    Console.WriteLine("Is weekend");
+    Console.WriteLine("The date is in the weekend");
 }
 ```
 </details>
@@ -208,8 +229,55 @@ if (DateSystem.IsWeekend(date, CountryCode.DE))
 
 The Docker container is available via [Docker Hub](https://hub.docker.com/r/nager/nager-date)<br>
 To run a local instance of the Docker image run the following command<br>
-`docker run -p 80:80 nager/nager-date`
+`docker run -p 80:8080 nager/nager-date`
 
+
+## Holiday types
+What variants of holidays are supported by `Nager.Date`
+
+| Type        | Description                                 |
+| ----------- | ------------------------------------------- |
+| Public      | Public holiday                              |
+| Bank        | Bank holiday, banks and offices are closed  |
+| School      | School holiday, schools are closed          |
+| Authorities | Authorities are closed                      |
+| Optional    | Majority of people take a day off           |
+| Observance  | Optional festivity, no paid day off         |
+
+## Release and Support Lifecycle
+
+Here you can see how long the product will be supported and when the End of Life (EOL) is planned.
+
+| Product                          | Release Date                              | Supported | End of life |
+| -------------------------------- | ----------------------------------------- | --------- | ----------- |
+| WebApi v3                        | 2021-05-18                                | Yes       | -           |
+| WebApi v2                        | 2019-02-10                                | No        | 2024-12-01  |
+| WebApi v1                        | 2017-02-06                                | No        | 2024-06-24  |
+| Nuget Package v2                 | 2024-03-07                                | Yes       | -           |
+| Nuget Package v1                 | 2014-08-15                                | No        | 2024-03-07  |
+
+## Data precision
+
+There is no generally valid designation for the next administrative level of countries.
+"Nager.Date" supports the initial subdivision of a country, but we will not support a detailed level because the effort required is too high.
+
+To keep it generally valid, we will treat this subdivision as `SubdivisionCodes`, this will replace the current designation `Counties`.
+
+- **United States of America** use `States`
+- **Germany** use `States`
+- **Austria** use `States`
+- **Switzerland** use `Cantons`
+- **Brazil** use `States`
+- **Australia** use `States` or `Territories`
+- **Russia** use `Federal districts`
+- **Canada** use `Province` or `Territories`
+
+| Precision                                                                    | Supported |
+| ---------------------------------------------------------------------------- | --------- |
+| Public Holidays for specific Country                                         | Yes       |
+| Holidays for Subdivisions based on ISO 3166-2 (first level)                  | Yes       |
+| Holidays for Cities                                                          | No        |
+| Holidays for Regions                                                         | No        |
 
 ## Areas of Application
 

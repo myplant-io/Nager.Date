@@ -9,7 +9,7 @@ RUN apk add --no-cache icu-libs
 # Disable the invariant mode (set in base image)
 ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=false
 
-FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 COPY ["src/Nager.Date/Nager.Date.csproj", "Nager.Date/"]
 RUN dotnet restore "Nager.Date/Nager.Date.csproj"

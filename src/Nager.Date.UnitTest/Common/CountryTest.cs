@@ -1,5 +1,5 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Nager.Date.Contract;
+using Nager.Date.HolidayProviders;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,13 +10,13 @@ namespace Nager.Date.UnitTest.Common
     public class CountryTest
     {
         [TestMethod]
-        public void CheckCountries()
+        public void HolidayProvider_ReturnCorrectCountryCode()
         {
             foreach (CountryCode countryCode in Enum.GetValues(typeof(CountryCode)))
             {
-                var provider = DateSystem.GetPublicHolidayProvider(countryCode);
+                var provider = HolidaySystem.GetHolidayProvider(countryCode);
 
-                var publicHolidays = provider.GetHolidays(2018);
+                var publicHolidays = provider.GetHolidays(DateTime.Today.Year);
                 if (!publicHolidays.Any())
                 {
                     continue;
@@ -30,15 +30,15 @@ namespace Nager.Date.UnitTest.Common
         }
 
         [TestMethod]
-        public void CheckCounties()
+        public void CheckSubdivisonCodes()
         {
             var failures = new List<string>();
 
             foreach (CountryCode countryCode in Enum.GetValues(typeof(CountryCode)))
             {
-                var provider = DateSystem.GetPublicHolidayProvider(countryCode);
-                var counties = provider is ICountyProvider countyProvider
-                    ? countyProvider.GetCounties()
+                var provider = HolidaySystem.GetHolidayProvider(countryCode);
+                var subdivisionCodes = provider is ISubdivisionCodesProvider subdivisionCodesProvider
+                    ? subdivisionCodesProvider.GetSubdivisionCodes()
                     : new Dictionary<string, string>();
 
                 var startYear = DateTime.Today.Year - 100;
@@ -46,22 +46,27 @@ namespace Nager.Date.UnitTest.Common
 
                 for (var year = startYear; year <= endYear; year++)
                 {
-                    var publicHolidays = DateSystem.GetPublicHolidays(year, countryCode);
+                    var publicHolidays = HolidaySystem.GetHolidays(year, countryCode);
                     foreach (var publicHoliday in publicHolidays)
                     {
-                        if (publicHoliday.Counties == null)
+                        if (publicHoliday.SubdivisionCodes == null)
                         {
                             continue;
                         }
 
-                        if (publicHoliday.Counties.Count(o => counties.Keys.Contains(o)) != publicHoliday.Counties.Length)
+                        var groupedSubdivisonCodes = publicHoliday.SubdivisionCodes.GroupBy(subdivisionCode => subdivisionCode).Select(subdivisionCodes => new { subdivisionCodes.Key, Count = subdivisionCodes.Count() });
+                        if (groupedSubdivisonCodes.Where(o => o.Count > 1).Any())
                         {
-                            var diff = publicHoliday.Counties.Except(counties.Keys);
-                            failures.Add($"Unknown county in {provider} \"{publicHoliday.Name}\" {string.Join(',', diff)}");
+                            failures.Add($"{countryCode} - Duplicate SubdivisonCode by {publicHoliday}");
+                        }
+
+                        if (publicHoliday.SubdivisionCodes.Count(o => subdivisionCodes.Keys.Contains(o)) != publicHoliday.SubdivisionCodes.Length)
+                        {
+                            var diff = publicHoliday.SubdivisionCodes.Except(subdivisionCodes.Keys);
+                            failures.Add($"Unknown subdivisionCode in {provider} \"{publicHoliday.EnglishName}\" {string.Join(',', diff)}");
                         }
                     }
                 }
-
             }
 
             if (failures.Count > 0)
@@ -77,15 +82,16 @@ namespace Nager.Date.UnitTest.Common
         [DataRow("DE")]
         public void CheckCaseInsensitive(string countryCode)
         {
-            var result = DateSystem.GetPublicHolidays(2018, countryCode);
+            var result = HolidaySystem.GetHolidays(2018, countryCode);
 
             Assert.IsNotNull(result);
         }
 
         [TestMethod]
-        public void ThrowOnUndefinedEnum()
+        [ExpectedException(typeof(ArgumentException))]
+        public void HolidaySystem_CheckInvalidCountry_ThrowException()
         {
-            Assert.ThrowsException<ArgumentException>(() => DateSystem.GetPublicHolidays(2018, "1000"));
+            HolidaySystem.GetHolidays(2018, "1000");
         }
     }
 }
